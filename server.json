@@ -1,0 +1,44 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
+  "name": "io.github.ohneben/activecampaign-mcp",
+  "description": "ActiveCampaign MCP server — the full account API (v3 + SMS + WhatsApp + Segments, ~325 endpoints) as safety-categorized tools (Docker + Streamable HTTP).",
+  "status": "active",
+  "repository": {
+    "url": "https://github.com/ohneben/ActiveCampaign-MCP",
+    "source": "github"
+  },
+  "version": "1.0.0",
+  "packages": [
+    {
+      "registry_type": "oci",
+      "registry_base_url": "https://ghcr.io",
+      "identifier": "ohneben/activecampaign-mcp",
+      "version": "1.0.0",
+      "transport": {
+        "type": "streamable-http"
+      },
+      "environment_variables": [
+        {
+          "name": "ACTIVECAMPAIGN_API_URL",
+          "description": "Your account's API URL, copied from ActiveCampaign -> Settings -> Developer, e.g. https://your-account.api-us1.com/api/3",
+          "is_required": true,
+          "format": "string"
+        },
+        {
+          "name": "ACTIVECAMPAIGN_API_TOKEN",
+          "description": "Your ActiveCampaign API token (same Developer screen).",
+          "is_required": true,
+          "is_secret": true,
+          "format": "string"
+        },
+        {
+          "name": "MCP_SHARED_TOKEN",
+          "description": "Optional bearer token required on the /mcp endpoint. Empty = open (localhost only).",
+          "is_required": false,
+          "is_secret": true,
+          "format": "string"
+        }
+      ]
+    }
+  ]
+}
