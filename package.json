@@ -1,0 +1,55 @@
+{
+  "name": "activecampaign-mcp",
+  "version": "1.0.0",
+  "description": "Model Context Protocol server for the ActiveCampaign API. Exposes the full account API (v3 + SMS + WhatsApp + Segments, ~325 endpoints) as safety-categorized MCP tools (read-only / write / destructive), over stdio or Streamable HTTP.",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "activecampaign",
+    "crm",
+    "email-marketing",
+    "marketing-automation",
+    "api"
+  ],
+  "license": "MIT",
+  "author": "ohneben",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ohneben/ActiveCampaign-MCP.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ohneben/ActiveCampaign-MCP/issues"
+  },
+  "homepage": "https://github.com/ohneben/ActiveCampaign-MCP#readme",
+  "type": "module",
+  "bin": {
+    "activecampaign-mcp": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "spec"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "start:stdio": "MCP_TRANSPORT=stdio node dist/index.js",
+    "start:http": "MCP_TRANSPORT=http node dist/index.js",
+    "dev": "tsc --watch",
+    "list-tools": "node dist/scripts/list-tools.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "yaml": "^2.6.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.10"
+  }
+}
