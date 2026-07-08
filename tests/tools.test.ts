@@ -4,10 +4,19 @@ import { fileURLToPath } from "node:url";
 import { loadAllSpecs } from "../src/openapi.js";
 import { SPEC_SOURCES } from "../src/specs.js";
 import { operationsToTools } from "../src/tools.js";
+import { graphqlTool } from "../src/graphql.js";
+import type { ServerConfig } from "../src/config.js";
 
 const specDir = resolve(dirname(fileURLToPath(import.meta.url)), "..", "spec");
 const operations = loadAllSpecs(specDir, SPEC_SOURCES, resolve);
 const tools = operationsToTools(operations);
+
+// The full default tool set as src/index.ts assembles it: every REST tool plus
+// the always-on GraphQL passthrough. graphqlTool only reads cfg.graphqlUrl.
+const defaultTools = [
+  ...tools,
+  graphqlTool({ graphqlUrl: "https://acme.api-us1.com/api/3/ecom/graphql" } as ServerConfig),
+];
 
 describe("operationsToTools", () => {
   it("produces exactly one tool per operation (no filter)", () => {
@@ -34,6 +43,42 @@ describe("operationsToTools", () => {
     for (const t of tools) {
       expect(t.inputSchema.type).toBe("object");
       expect(t.inputSchema.additionalProperties).toBe(false);
+    }
+  });
+
+  it("only exposes Anthropic-legal property keys — one bad key would break the whole client", () => {
+    // Regression: ActiveCampaign's spec uses PHP-style bracket query params like
+    // `filters[email]`, `orders[cdate]`, `dealIds[]`, plus oddities `<operator>`,
+    // `exclude=email`, `[]ids` and `Fitlers[due_before]`. Copied verbatim into
+    // input_schema.properties they make Claude's API 400 the ENTIRE tool list with
+    // "Property keys should match pattern '^[a-zA-Z0-9_.-]{1,64}$'". Assert the FULL
+    // default tool set (REST + GraphQL) only ever exposes sanitized keys and names.
+    const LEGAL_KEY = /^[a-zA-Z0-9_.-]{1,64}$/;
+    const LEGAL_NAME = /^[a-zA-Z0-9_-]{1,64}$/;
+    for (const t of defaultTools) {
+      expect(t.name, `illegal tool name ${JSON.stringify(t.name)}`).toMatch(LEGAL_NAME);
+      for (const key of Object.keys((t.inputSchema.properties as Record<string, unknown>) ?? {})) {
+        expect(key, `${t.name} exposes illegal property key ${JSON.stringify(key)}`).toMatch(LEGAL_KEY);
+      }
+      const required = (t.inputSchema.required as string[] | undefined) ?? [];
+      for (const key of required) expect(key, `${t.name} requires unknown key ${key}`).toMatch(LEGAL_KEY);
+    }
+  });
+
+  it("renames bracket query params to sanitized keys and notes the raw name", () => {
+    // e.g. a list endpoint exposing `filters[email]` must surface it as
+    // `filters_email` with a "Sent to ActiveCampaign as ..." breadcrumb.
+    const withBracketParam = tools.find((t) =>
+      t.operation?.parameters.some((p) => p.name.includes("[") && p.in === "query"),
+    );
+    expect(withBracketParam).toBeDefined();
+    const props = withBracketParam!.inputSchema.properties as Record<string, { description?: string }>;
+    for (const p of withBracketParam!.operation!.parameters) {
+      if (!p.name.includes("[")) continue;
+      expect(Object.prototype.hasOwnProperty.call(props, p.name)).toBe(false);
+      expect(p.argName).toBeDefined();
+      expect(props[p.argName!]).toBeDefined();
+      expect(props[p.argName!].description).toContain(`Sent to ActiveCampaign as "${p.name}"`);
     }
   });
 
