@@ -41,6 +41,11 @@ function snakeCase(input: string): string {
 function paramToSchema(p: ParameterSpec): JsonSchema {
   const base: Record<string, unknown> = { ...(p.schema ?? { type: "string" }) };
   if (p.description && !base.description) base.description = p.description;
+  // A renamed (sanitized) parameter still reaches ActiveCampaign under its raw
+  // bracket name, so surface it in the description for discoverability.
+  if (p.argName && p.argName !== p.name) {
+    base.description = [base.description, `Sent to ActiveCampaign as "${p.name}".`].filter(Boolean).join(" ");
+  }
   return base;
 }
 
@@ -49,8 +54,9 @@ function buildInputSchema(op: Operation): Record<string, unknown> {
   const required: string[] = [];
 
   for (const p of op.parameters) {
-    properties[p.name] = paramToSchema(p);
-    if (p.required) required.push(p.name);
+    const key = p.argName ?? p.name;
+    properties[key] = paramToSchema(p);
+    if (p.required) required.push(key);
   }
 
   if (op.requestBodySchema) {
