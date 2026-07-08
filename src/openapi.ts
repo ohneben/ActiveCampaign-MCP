@@ -13,6 +13,16 @@ export interface ParameterSpec {
   description?: string;
   schema?: JsonSchema;
   explode?: boolean;
+  /**
+   * Schema-legal key this parameter is exposed under in a tool's input schema.
+   * Anthropic's API only accepts property keys matching `^[a-zA-Z0-9_.-]{1,64}$`,
+   * but ActiveCampaign's spec uses PHP-style bracket query params (`filters[email]`,
+   * `orders[cdate]`, `dealIds[]`, `<operator>`, `exclude=email`, …). A single such
+   * key would make an MCP client reject the ENTIRE tool list. `argName` is the
+   * sanitized, per-operation-unique key; the raw `name` is still sent upstream.
+   * Always set on loaded operations; equals `name` whenever the raw name is legal.
+   */
+  argName?: string;
 }
 
 export interface Operation {
@@ -147,6 +157,32 @@ function resolveRequestBody(
 
 /** Auth/content headers we inject ourselves — never expose them as tool inputs. */
 const HEADERS_TO_SKIP = new Set(["authorization", "api-token", "token", "content-type", "accept"]);
+
+/** Anthropic's constraint on tool input-schema property keys. */
+export const TOOL_ARG_KEY = /^[a-zA-Z0-9_.-]{1,64}$/;
+
+/** Coerce an arbitrary parameter name into a schema-legal property key. */
+const sanitizeArgKey = (name: string): string =>
+  name.replace(/[^a-zA-Z0-9_.-]+/g, "_").replace(/^[_.]+|[_.]+$/g, "").slice(0, 64) || "param";
+
+/**
+ * Give every parameter a schema-legal `argName` that is unique within the
+ * operation. Legal names pass through untouched (so injected `limit`/`offset`/
+ * `orders`/`filters` keep their clean names); bracket/`<operator>`/`=` names like
+ * `filters[email]` become `filters_email`. On a collision the later parameter
+ * gets a numeric suffix. The raw `name` is preserved for the upstream request.
+ */
+function assignArgNames(params: ParameterSpec[]): ParameterSpec[] {
+  const used = new Set<string>();
+  return params.map((p) => {
+    const base = TOOL_ARG_KEY.test(p.name) ? p.name : sanitizeArgKey(p.name);
+    let argName = base;
+    let i = 2;
+    while (used.has(argName)) argName = `${base.slice(0, 60)}_${i++}`;
+    used.add(argName);
+    return { ...p, argName };
+  });
+}
 
 /** Extract the path portion of the first server URL (e.g. `/api/3`, or ``). */
 function serverPathFromDoc(doc: OpenApiDoc): string {
@@ -302,13 +338,15 @@ export function loadSpec(specPath: string, source: SpecSource): Operation[] {
         summary: op.summary,
         description: op.description,
         group: groupForPath(path),
-        parameters: withStandardListParams(
-          method,
-          path,
-          allParams.map((p) => ({
-            ...p,
-            schema: p.schema ? dereferenceSchema(doc, p.schema) : undefined,
-          })),
+        parameters: assignArgNames(
+          withStandardListParams(
+            method,
+            path,
+            allParams.map((p) => ({
+              ...p,
+              schema: p.schema ? dereferenceSchema(doc, p.schema) : undefined,
+            })),
+          ),
         ),
         requestBodySchema,
         requestBodyRequired,
