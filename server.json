@@ -10,33 +10,32 @@
   "version": "1.1.0",
   "packages": [
     {
-      "registry_type": "oci",
-      "registry_base_url": "https://ghcr.io",
-      "identifier": "ohneben/activecampaign-mcp",
-      "version": "1.0.1",
+      "registryType": "oci",
+      "identifier": "ghcr.io/ohneben/activecampaign-mcp:1.1.0",
+      "runtimeHint": "docker",
       "transport": {
         "type": "streamable-http"
       },
-      "environment_variables": [
+      "environmentVariables": [
         {
           "name": "ACTIVECAMPAIGN_API_URL",
           "description": "Your account's API URL, copied from ActiveCampaign -> Settings -> Developer, e.g. https://your-account.api-us1.com/api/3",
-          "is_required": true,
-          "format": "string"
+          "format": "string",
+          "isRequired": true
         },
         {
           "name": "ACTIVECAMPAIGN_API_TOKEN",
           "description": "Your ActiveCampaign API token (same Developer screen).",
-          "is_required": true,
-          "is_secret": true,
-          "format": "string"
+          "format": "string",
+          "isRequired": true,
+          "isSecret": true
         },
         {
           "name": "MCP_AUTH_TOKEN",
-          "description": "Optional bearer token required on the /mcp endpoint. Empty = open (localhost only).",
-          "is_required": false,
-          "is_secret": true,
-          "format": "string"
+          "description": "Bearer token required on the /mcp endpoint. Required whenever HOST is not a loopback address, otherwise the server refuses to start.",
+          "format": "string",
+          "isRequired": true,
+          "isSecret": true
         }
       ]
     }
