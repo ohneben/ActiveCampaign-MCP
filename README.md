@@ -1,4 +1,4 @@
-# ohneben ActiveCampaign MCP
+# ohneben's ActiveCampaign MCP
 
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-ohneben-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/ohneben)
 
@@ -11,6 +11,8 @@
 
 #### MCP registries
 
+[![MCP Registry](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fregistry.modelcontextprotocol.io%2Fv0.1%2Fservers%2Fio.github.ohneben%252Factivecampaign-mcp%2Fversions%2Flatest&query=%24.server.version&prefix=v&label=MCP%20Registry&color=blue&logo=modelcontextprotocol&logoColor=white)](https://registry.modelcontextprotocol.io/v0.1/servers/io.github.ohneben%2Factivecampaign-mcp/versions/latest)
+[![Listed on mcpservers.org](https://mcpservers.org/badge.svg)](https://mcpservers.org/servers/ohneben/activecampaign-mcp)
 [![ActiveCampaign-MCP MCP server](https://glama.ai/mcp/servers/ohneben/ActiveCampaign-MCP/badges/score.svg)](https://glama.ai/mcp/servers/ohneben/ActiveCampaign-MCP)
 
 **The most complete ActiveCampaign MCP server there is.** Run your entire
