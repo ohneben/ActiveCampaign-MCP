@@ -1,6 +1,6 @@
 {
   "name": "activecampaign-mcp",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Model Context Protocol server for the ActiveCampaign API. Exposes the full account API (v3 + SMS + WhatsApp + Segments, ~325 endpoints) as safety-categorized MCP tools (read-only / write / destructive), over stdio or Streamable HTTP.",
   "keywords": [
     "mcp",
@@ -50,6 +50,6 @@
   "devDependencies": {
     "@types/node": "^26.1.0",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.10"
+    "vitest": "^5.0.0"
   }
 }

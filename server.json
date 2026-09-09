@@ -7,7 +7,7 @@
     "url": "https://github.com/ohneben/ActiveCampaign-MCP",
     "source": "github"
   },
-  "version": "1.0.1",
+  "version": "1.1.0",
   "packages": [
     {
       "registry_type": "oci",
@@ -32,7 +32,7 @@
           "format": "string"
         },
         {
-          "name": "MCP_SHARED_TOKEN",
+          "name": "MCP_AUTH_TOKEN",
           "description": "Optional bearer token required on the /mcp endpoint. Empty = open (localhost only).",
           "is_required": false,
           "is_secret": true,
