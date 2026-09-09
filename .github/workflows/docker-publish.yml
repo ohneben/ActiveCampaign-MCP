@@ -145,9 +145,16 @@ jobs:
         env:
           VERSION: ${{ needs.version.outputs.version }}
         run: |
+          # The registry applies per-type rules on top of the JSON schema: for an
+          # OCI package it rejects registryBaseUrl, a package-level version and
+          # fileSha256, because the canonical identifier already carries the host
+          # and the tag. Deleting them here means a later hand-edit cannot
+          # reintroduce a shape that only fails server-side.
           jq --arg v "$VERSION" '
             .version = $v
             | .packages[0].identifier = "ghcr.io/ohneben/activecampaign-mcp:" + $v
+            | del(.packages[0].registryBaseUrl, .packages[0].registry_base_url,
+                  .packages[0].version, .packages[0].fileSha256)
           ' server.json > server.json.tmp
           mv server.json.tmp server.json
           cat server.json
