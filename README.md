@@ -1,10 +1,17 @@
-# ohneben's ActiveCampaign MCP
+# ohneben ActiveCampaign MCP
 
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-ohneben-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/ohneben)
 
+---
+
+#### License & checks
+
 [![CI](https://github.com/ohneben/ActiveCampaign-MCP/actions/workflows/ci.yml/badge.svg)](https://github.com/ohneben/ActiveCampaign-MCP/actions/workflows/ci.yml)
-[![Publish Docker image](https://github.com/ohneben/ActiveCampaign-MCP/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/ohneben/ActiveCampaign-MCP/actions/workflows/docker-publish.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE.md)
+
+#### MCP registries
+
+[![ActiveCampaign-MCP MCP server](https://glama.ai/mcp/servers/ohneben/ActiveCampaign-MCP/badges/score.svg)](https://glama.ai/mcp/servers/ohneben/ActiveCampaign-MCP)
 
 **The most complete ActiveCampaign MCP server there is.** Run your entire
 [ActiveCampaign](https://www.activecampaign.com/) account in plain language from
@@ -119,7 +126,7 @@ token stays in the server's environment — the model never sees or handles it.
 ```bash
 cp .env.example .env
 # edit .env → set ACTIVECAMPAIGN_API_URL and ACTIVECAMPAIGN_API_TOKEN
-#           → set MCP_SHARED_TOKEN to a long random string if reachable beyond localhost
+#           → set MCP_AUTH_TOKEN to a long random string if reachable beyond localhost
 ```
 
 **2. Start the server:**
@@ -153,14 +160,14 @@ curl -s http://localhost:8765/health
         "args": [
           "mcp-remote",
           "http://localhost:8765/mcp",
-          "--header", "Authorization: Bearer YOUR_MCP_SHARED_TOKEN"
+          "--header", "Authorization: Bearer YOUR_MCP_AUTH_TOKEN"
         ]
       }
     }
   }
   ```
 
-  (Drop the `--header` line if you left `MCP_SHARED_TOKEN` empty.)
+  (Drop the `--header` line if you left `MCP_AUTH_TOKEN` empty.)
 
 - **Claude Code** — one command:
 
@@ -204,7 +211,7 @@ Everything is set in `.env` (copied from `.env.example`):
 | `PORT` | — | `8765` | HTTP listen port |
 | `HOST` | — | `0.0.0.0` | HTTP bind address |
 | `MCP_HTTP_PATH` | — | `/mcp` | HTTP MCP route |
-| `MCP_SHARED_TOKEN` | — | _(off)_ | Require `Authorization: Bearer <token>` on `/mcp` |
+| `MCP_AUTH_TOKEN` | — | _(off)_ | Require `Authorization: Bearer <token>` on `/mcp` |
 | `ACTIVECAMPAIGN_MAX_REQUESTS` | — | `4` | Client-side requests per window (`0` disables throttling) |
 | `ACTIVECAMPAIGN_RATE_WINDOW_MS` | — | `1000` | Rate-limit window in ms (default: 4 req/s) |
 | `ACTIVECAMPAIGN_MAX_RETRIES` | — | `3` | Retries on `429` / `5xx` / network errors |
@@ -347,7 +354,7 @@ publish a Docker image to the GitHub Container Registry.
   secrets.** The token grants full account access — if it leaks, rotate it in
   **ActiveCampaign → Settings → Developer**.
 - The HTTP endpoint is unauthenticated by default (fine on localhost). To expose
-  it beyond your machine, set `MCP_SHARED_TOKEN` and send it as an
+  it beyond your machine, set `MCP_AUTH_TOKEN` and send it as an
   `Authorization: Bearer <token>` header — ideally behind TLS.
 - Delete and **send** (SMS/WhatsApp) tools carry the right annotations so a
   well-behaved host prompts before acting — keep that confirmation on, or run in
