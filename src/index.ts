@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { createServer as createHttpServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { randomUUID } from "node:crypto";
+import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
@@ -25,7 +26,26 @@ import {
 } from "./http.js";
 
 const SERVER_NAME = "activecampaign-mcp";
-const SERVER_VERSION = "1.0.0";
+const FALLBACK_VERSION = "unknown";
+
+/**
+ * The version reported over MCP. It comes from package.json, which CI stamps
+ * from the release tag and writes back to main, so the number is never
+ * maintained by hand and never drifts from what was actually published. It
+ * used to be a literal here, which kept reporting 1.0.0 after 1.1.0 shipped.
+ */
+function readPackageVersion(): string {
+  try {
+    const pkg = createRequire(import.meta.url)("../package.json") as {
+      version?: string;
+    };
+    return pkg.version ?? FALLBACK_VERSION;
+  } catch {
+    return FALLBACK_VERSION;
+  }
+}
+
+const SERVER_VERSION = readPackageVersion();
 
 /** Build the full, filtered tool set (REST tools + optional GraphQL tool). */
 function buildTools(config: ServerConfig): ToolDefinition[] {
