@@ -3,7 +3,7 @@
   "name": "io.github.ohneben/activecampaign-mcp",
   "title": "ActiveCampaign",
   "description": "ActiveCampaign API: ~325 endpoints (v3, SMS, WhatsApp, Segments) as safety-categorized MCP tools.",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "websiteUrl": "https://github.com/ohneben/ActiveCampaign-MCP#readme",
   "repository": {
     "url": "https://github.com/ohneben/ActiveCampaign-MCP",
@@ -12,7 +12,7 @@
   "packages": [
     {
       "registryType": "oci",
-      "identifier": "ghcr.io/ohneben/activecampaign-mcp:1.1.0",
+      "identifier": "ghcr.io/ohneben/activecampaign-mcp:1.1.1",
       "runtimeHint": "docker",
       "transport": {
         "type": "stdio"
