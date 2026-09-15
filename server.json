@@ -1,40 +1,48 @@
 {
-  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.ohneben/activecampaign-mcp",
-  "description": "ActiveCampaign MCP server — the full account API (v3 + SMS + WhatsApp + Segments, ~325 endpoints) as safety-categorized tools (Docker + Streamable HTTP).",
-  "status": "active",
+  "title": "ActiveCampaign",
+  "description": "ActiveCampaign API: ~325 endpoints (v3, SMS, WhatsApp, Segments) as safety-categorized MCP tools.",
+  "version": "1.1.0",
+  "websiteUrl": "https://github.com/ohneben/ActiveCampaign-MCP#readme",
   "repository": {
     "url": "https://github.com/ohneben/ActiveCampaign-MCP",
     "source": "github"
   },
-  "version": "1.1.0",
   "packages": [
     {
       "registryType": "oci",
       "identifier": "ghcr.io/ohneben/activecampaign-mcp:1.1.0",
       "runtimeHint": "docker",
       "transport": {
-        "type": "streamable-http"
+        "type": "stdio"
       },
       "environmentVariables": [
         {
+          "name": "MCP_TRANSPORT",
+          "description": "Server transport. Set to 'stdio' for local MCP clients; the image otherwise starts the Streamable HTTP transport.",
+          "isRequired": true,
+          "default": "stdio",
+          "choices": [
+            "stdio",
+            "http"
+          ]
+        },
+        {
           "name": "ACTIVECAMPAIGN_API_URL",
           "description": "Your account's API URL, copied from ActiveCampaign -> Settings -> Developer, e.g. https://your-account.api-us1.com/api/3",
-          "format": "string",
           "isRequired": true
         },
         {
           "name": "ACTIVECAMPAIGN_API_TOKEN",
           "description": "Your ActiveCampaign API token (same Developer screen).",
-          "format": "string",
           "isRequired": true,
           "isSecret": true
         },
         {
           "name": "MCP_AUTH_TOKEN",
-          "description": "Bearer token required on the /mcp endpoint. Required whenever HOST is not a loopback address, otherwise the server refuses to start.",
-          "format": "string",
-          "isRequired": true,
+          "description": "Only for MCP_TRANSPORT=http: bearer token required on /mcp. Without it a non-loopback bind refuses to start.",
+          "isRequired": false,
           "isSecret": true
         }
       ]
